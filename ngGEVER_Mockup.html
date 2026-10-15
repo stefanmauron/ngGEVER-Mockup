@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ngGEVER Demonstrator – Schritt 1</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg:#f3f3f3;--pn:#fff;--tx:#2e2e2e;--mu:#6b6b6b;--ln:#d9d9d9;--red:#dc0018;--ol:#0f6cbd;--ok:#2e7d32;--okb:#e8f3e9;--hl:#fbeaec}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1e1e1e;--pn:#2a2a2a;--tx:#eee;--mu:#a5a5a5;--ln:#444;--hl:#3a2226;--okb:#22352a}}
+:root[data-theme="dark"]{--bg:#1e1e1e;--pn:#2a2a2a;--tx:#eee;--mu:#a5a5a5;--ln:#444;--hl:#3a2226;--okb:#22352a}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;height:100%;background:var(--bg);color:var(--tx);font:14px/1.45 Frutiger,"Frutiger Neue",Arial,Helvetica,sans-serif;display:flex;flex-direction:column}
+.top{background:var(--ol);color:#fff;display:flex;align-items:center;gap:14px;padding:8px 14px;font-weight:600}
+.top small{font-weight:400;opacity:.85}.top .sp{flex:1}
+.tb{display:flex;gap:8px;padding:6px 14px;background:var(--pn);border-bottom:1px solid var(--ln);align-items:center}
+.tb button{border:1px solid transparent;background:none;color:var(--tx);padding:6px 10px;border-radius:4px;font:inherit;cursor:pointer}
+.tb button:hover{background:var(--bg)}
+#ngb{border-color:var(--red);color:var(--red);font-weight:600;position:relative}
+#ngb.hint::after{content:"Hier klicken";position:absolute;top:100%;left:0;margin-top:6px;background:var(--red);color:#fff;font-size:12px;font-weight:400;padding:3px 8px;border-radius:3px;white-space:nowrap;z-index:5}
+.main{flex:1;display:flex;min-height:0}
+.nav{width:170px;background:var(--pn);border-right:1px solid var(--ln);padding:10px 0}
+.nav div{padding:6px 16px}.nav .a{background:var(--bg);font-weight:600;border-left:3px solid var(--ol)}
+.list{width:300px;background:var(--pn);border-right:1px solid var(--ln);overflow:auto}
+.mi{padding:10px 14px;border-bottom:1px solid var(--ln)}.mi b{display:block}.mi span{color:var(--mu);font-size:12px}
+.mi.a{background:#e6f0fa;border-left:3px solid var(--ol)}:root[data-theme=dark] .mi.a{background:#243447}
+.read{flex:1;background:var(--pn);padding:20px 26px;overflow:auto;min-width:0}
+.read h2{margin:0 0 10px;font-size:18px}.meta{color:var(--mu);font-size:13px;margin-bottom:16px}
+.att{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--ln);border-radius:4px;padding:6px 10px;margin-top:10px}
+.att i{background:#2b579a;color:#fff;font-style:normal;font-weight:700;padding:1px 6px;border-radius:2px;font-size:12px}
+.pane{width:0;overflow:hidden;background:var(--pn);border-left:1px solid var(--ln);transition:width .25s;display:flex;flex-direction:column}
+.pane.open{width:390px}
+.pin{width:390px;display:flex;flex-direction:column;height:100%;min-height:0}
+.ph{border-top:4px solid var(--red);padding:10px 14px;border-bottom:1px solid var(--ln);display:flex;gap:10px;align-items:center}
+.cross{width:28px;height:28px;background:var(--red);border-radius:3px;position:relative;flex:none}
+.cross::before,.cross::after{content:"";position:absolute;background:#fff}
+.cross::before{left:12px;top:5px;width:4px;height:18px}.cross::after{left:5px;top:12px;width:18px;height:4px}
+.ph b{display:block;font-size:15px}.ph small{color:var(--mu);font-size:11px}
+.chat{flex:1;overflow:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+.bot,.me{max-width:94%}.me{align-self:flex-end;background:var(--red);color:#fff;padding:8px 12px;border-radius:14px 14px 2px 14px}
+.bot{align-self:flex-start;width:100%}
+.chips{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.chip{border:1px solid var(--red);background:var(--pn);color:var(--red);padding:9px 12px;border-radius:4px;font:inherit;font-weight:600;text-align:left;cursor:pointer}
+.chip:hover{background:var(--hl)}.chip small{display:block;font-weight:400;color:var(--mu)}
+.steps{list-style:none;margin:0;padding:0;font-size:13px;color:var(--mu)}
+.steps li{display:flex;gap:8px;padding:3px 0;align-items:flex-start}
+.steps li.d{color:var(--tx)}
+.ic{width:16px;height:16px;flex:none;margin-top:2px;border-radius:50%;border:2px solid var(--ln);border-top-color:var(--red);animation:sp .8s linear infinite}
+li.d .ic{animation:none;border:none;background:var(--ok);position:relative}
+li.d .ic::after{content:"";position:absolute;left:5px;top:2px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+@keyframes sp{to{transform:rotate(360deg)}}
+.card{border:1px solid var(--ln);border-radius:4px;background:var(--pn);margin-top:8px;overflow:hidden}
+.card h4{margin:0;padding:8px 12px;background:var(--bg);font-size:13px;border-bottom:1px solid var(--ln)}
+.card .b{padding:10px 12px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 8px;font-size:13px}.kv dt{color:var(--mu)}.kv dd{margin:0}
+.rec{border-left:4px solid var(--red)}
+.tag{display:inline-block;background:var(--hl);color:var(--red);font-size:11px;font-weight:600;padding:1px 7px;border-radius:10px}
+.why{margin:8px 0 0;padding-left:18px;font-size:13px}
+.btns{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{background:var(--red);color:#fff;border:0;padding:9px 14px;border-radius:4px;font:inherit;font-weight:600;cursor:pointer}
+.btn:hover{filter:brightness(.92)}.btn.s{background:none;color:var(--red);border:1px solid var(--red)}
+a{color:var(--red)}
+.okc{background:var(--okb);border-color:var(--ok)}.okc h4{background:none;color:var(--ok);border-color:var(--ok)}
+.in{border-top:1px solid var(--ln);padding:10px 14px;display:flex;gap:8px}
+.in input{flex:1;padding:8px 10px;border:1px solid var(--ln);border-radius:4px;background:var(--pn);color:var(--tx);font:inherit}
+.in button{border:1px solid var(--ln);background:none;color:var(--mu);border-radius:4px;padding:0 12px;cursor:pointer}
+.ft{font-size:11px;color:var(--mu);padding:0 14px 8px}.ft a{cursor:pointer}
+@media(max-width:1000px){.nav,.list{display:none}}
+@media(max-width:700px){.read{display:none}.pane.open{width:100%}}
+.ei{width:100%;padding:5px 8px;border:1px solid var(--ln);border-radius:4px;background:var(--pn);color:var(--tx);font:inherit}
+.dl{color:var(--red);font-weight:600;text-decoration:none;cursor:pointer}.dl:hover{text-decoration:underline}
+#word,#beil{position:fixed;inset:0;z-index:20;display:none;flex-direction:column;background:#e8e8e8;color:#222;padding-top:env(safe-area-inset-top,0px)}
+#word .wt,#beil .wt{background:#2b579a;color:#fff;padding:8px 14px;font-weight:600;display:flex;gap:14px;align-items:center}
+#word .wt small,#beil .wt small{font-weight:400;opacity:.85}#word .sp,#beil .sp{flex:1}
+#word .wr,#beil .wr{background:#f3f3f3;border-bottom:1px solid #d0d0d0;padding:6px 14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+#word .wr span,#beil .wr span{padding:6px 10px;color:#444}#word .wr button,#beil .wr button{border:1px solid #dc0018;color:#dc0018;background:#fff;font:inherit;font-weight:600;padding:6px 10px;border-radius:4px;cursor:pointer}
+#word .wb,#beil .wb{flex:1;display:flex;min-height:0}
+#word .pg,#beil .pg{flex:1;overflow:auto;padding:24px}
+#word .pp,#beil .pp{background:#fff;max-width:760px;margin:0 auto;padding:48px 56px;box-shadow:0 1px 4px rgba(0,0,0,.25);min-height:100%}
+#word .pp h1,#beil .pp h1{font-size:24px;margin:0 0 4px}#word .pp h3,#beil .pp h3{margin:22px 0 6px}
+#word .pane,#beil .pane{background:var(--pn);color:var(--tx)}
+.ri{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--ln);font-size:13px;align-items:flex-start}.ri:last-child{border:0}.ri b{display:block}.ri small{color:var(--mu);display:block}
+.src{font-size:11px;padding:1px 7px;border-radius:10px;background:var(--bg);border:1px solid var(--ln);color:var(--mu);margin-right:4px;white-space:nowrap}
+.ag{font-size:11px;background:var(--hl);color:var(--red);padding:0 6px;border-radius:8px;margin-right:4px;font-weight:600;white-space:nowrap}
+.btn:disabled{opacity:.4;cursor:not-allowed}.ri input{margin-top:3px;accent-color:var(--red)}
+#word .wr button:disabled{opacity:.4;cursor:default}#beil table{border-collapse:collapse;width:100%;margin-top:14px}#beil td,#beil th{border:1px solid #ccc;padding:6px 8px;text-align:left}
+#an{position:fixed;inset:0;z-index:40;display:none;flex-direction:column;background:#fff;color:#222;padding-top:env(safe-area-inset-top,0px);font-size:13px}
+#an .ah{display:flex;gap:18px;align-items:center;padding:8px 16px;border-bottom:1px solid #ddd;font-weight:600}#an .lg b{color:#8a9a1b;font-size:18px;display:block;line-height:1}#an .lg small{font-weight:400;font-size:10px}
+#an .sr{margin-left:auto;display:flex;gap:6px}#an .sr *{font:inherit;padding:4px 6px;border:1px solid #bbb;background:#fff}#an .us{text-align:right;font-weight:400}#an .us small{color:#0a6ab5}
+#an #anx{font:inherit;padding:5px 10px;border:1px solid #bbb;background:#f5f5f5;cursor:pointer;border-radius:3px}
+#an .mg{height:4px;background:#e6007e}#an .bc{background:#f3f3f3;padding:10px 16px}
+#an .abd{flex:1;display:flex;min-height:0}#an nav{width:290px;background:#f7f7f7;border-right:3px solid #ddd;padding:8px 0;overflow:auto}
+#an nav div{display:flex;justify-content:space-between;padding:4px 14px}#an nav .on{background:#e0edf8;font-weight:600}#an nav .l1{padding-left:28px}#an nav .l2{padding-left:44px;color:#0a6ab5}#an nav hr{border:0;border-top:1px solid #ddd;margin:6px 0}
+#an main{flex:1;padding:16px 20px;overflow:auto}#an h3{margin:0 0 12px;font-size:16px}#an h4{margin:18px 0 6px}
+#an table{border-collapse:collapse;width:100%}#an th{text-align:left;color:#0a6ab5;font-weight:400;padding:6px 8px;background:#f3f3f3}#an td{padding:8px;border-bottom:1px solid #e3e3e3}#an tr.sl td{background:#eef5fc}
+#an a{color:#0a6ab5;cursor:pointer}#an dl{display:grid;grid-template-columns:130px 1fr;gap:4px 8px;margin:0}#an dt{color:#666}#an dd{margin:0}
+#mc{position:fixed;left:12px;bottom:calc(var(--gh,0px) + 12px + env(safe-area-inset-bottom,0px));z-index:100;display:flex;gap:6px}
+#mc button{font:12px Arial,sans-serif;background:#555;color:#fff;border:0;border-radius:14px;padding:6px 12px;opacity:.75;cursor:pointer}#mc button:hover{opacity:1}#mc button:disabled{opacity:.3;cursor:default}
+#wdemo{display:none;margin-top:36px;padding-top:10px;border-top:1px dashed #ccc;text-align:right}#wdemo button{font:11px Arial,sans-serif;color:#888;background:#f2f2f2;border:1px solid #ddd;border-radius:3px;padding:3px 8px;cursor:pointer}#wdemo button:disabled{opacity:.5;cursor:default}
+body{padding-bottom:var(--gh,0px)}#word,#beil,#an{bottom:var(--gh,0px)}
+#gd{display:none;background:#2e2e2e;color:#fff;padding:12px 18px calc(12px + env(safe-area-inset-bottom,0px));font-size:14px;line-height:1.5;border-top:3px solid var(--red)}
+#an .tabs{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 14px}#an .tabs span{border:1px solid #bbb;padding:3px 8px}#an .tabs .on{background:#e0edf8}
+#an .flt{display:flex;gap:8px;align-items:center;margin:10px 0 14px}#an .flt input,#an .flt select{font:inherit;padding:3px 6px;border:1px solid #bbb}
+#an .dsp{display:flex;gap:24px}#an .dsp>div:first-child{flex:1;min-width:0}#an .nw{width:230px}#an .nw div{padding:4px 0}
+#gw{position:fixed;left:0;right:0;bottom:0;z-index:90}#dv{display:none;grid-template-columns:repeat(3,1fr);gap:18px;background:#f2f2f2;color:#222;border-top:3px solid #888;padding:10px 18px;font-size:13px;line-height:1.45}#dv b{display:block;margin-bottom:2px}
+
+/* Ausblick: eigenständige Präsentationsseiten nach der User-Story */
+#outlookFeatures{position:fixed;inset:0 0 var(--gh,0px);z-index:60;background:var(--bg);overflow:auto;padding:28px 36px 76px;color:var(--tx)}
+#outlookFeatures[hidden],#featureDetail[hidden]{display:none}
+.fx-shell{max-width:1440px;margin:auto}.fx-head{display:flex;align-items:center;gap:12px;padding-bottom:18px;border-bottom:1px solid var(--ln)}
+.fx-head small{color:var(--mu);font-size:16px}.fx-intro{max-width:900px;margin:10vh auto}.fx-intro h1{font-size:clamp(30px,5vw,58px);line-height:1.15;margin:18px 0}.fx-intro p{font-size:20px;color:var(--mu)}
+.fx-layout{display:grid;grid-template-columns:280px minmax(0,1fr);gap:28px;margin-top:28px}.fx-nav{display:flex;flex-direction:column;gap:8px}.fx-nav button,.fx-tile{font:inherit;text-align:left;background:var(--pn);border:1px solid var(--ln);border-radius:6px;color:var(--tx);cursor:pointer}
+.fx-nav button{display:flex;justify-content:space-between;gap:12px;padding:16px}.fx-nav button[aria-pressed=true],.fx-tile[aria-expanded=true]{border-color:var(--red);background:var(--hl)}
+.fx-nav button:hover,.fx-tile:hover{border-color:var(--red)}.fx-nav button:focus-visible,.fx-tile:focus-visible{outline:3px solid var(--red);outline-offset:3px}
+.fx-content h1{font-size:clamp(26px,3vw,40px);margin:0 0 8px}.fx-content>p{color:var(--mu)}.fx-content h2{margin:26px 0 16px;font-size:23px}
+.fx-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.fx-tile{padding:18px;min-height:128px;display:flex;flex-direction:column;gap:10px}.fx-tile b{font-size:13px;color:var(--mu)}.fx-tile span{font-size:17px}.fx-tile i{align-self:flex-end;color:var(--red);font-style:normal;font-size:22px;margin-top:auto}
+#featureDetail{background:var(--pn);border:1px solid var(--ln);border-radius:6px;padding:24px;margin-top:20px;scroll-margin-top:20px}#featureDetail h3{font-size:24px;margin:14px 0}#featureDetail p{font-size:17px;line-height:1.6}#featureDetail small{color:var(--mu)}.fx-close{float:right;font:inherit;border:0;background:none;color:var(--tx);cursor:pointer;padding:4px 8px;font-size:22px}
+.fx-note{padding:14px 18px;background:var(--pn);border:1px solid var(--ln);border-radius:6px;color:var(--mu);margin:26px 0 18px}.fx-footer{display:flex;justify-content:space-between;gap:12px;border-top:1px solid var(--ln);padding-top:18px}
+@media(max-width:1000px){.fx-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.fx-layout{grid-template-columns:230px minmax(0,1fr)}}
+@media(max-width:700px){#outlookFeatures{padding:18px 16px 100px}.fx-layout{grid-template-columns:1fr}.fx-nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}.fx-nav button{padding:10px}.fx-grid{grid-template-columns:1fr}.fx-intro{margin:8vh auto}.fx-tile{min-height:100px}}
+</style></head><body>
+<div class="top">Outlook <small>Online</small><span class="sp"></span><small>Beat Beispiel · Bundesamt</small></div>
+<div class="tb"><button>Neue Nachricht</button><button>Antworten</button><button>Weiterleiten</button><button>Löschen</button><button id="ngb" class="hint">◆ ngGEVER</button></div>
+<div class="main">
+<div class="nav"><div class="a">Posteingang</div><div>Entwürfe</div><div>Gesendete Elemente</div><div>Gelöschte Elemente</div></div>
+<div class="list">
+<div class="mi a"><b>Sabine Muster (Amtsleitung)</b>Prüfauftrag: Konzept «Umsetzung Teilstrategie GEVER (UTG)» V0.7<br><span>Heute 08:12</span></div>
+<div class="mi"><b>IT-Support</b>Wartungsfenster Freitag<br><span>Gestern</span></div>
+<div class="mi"><b>Personaldienst</b>Erinnerung Zeiterfassung<br><span>Mo</span></div></div>
+<div class="read">
+<h2>Prüfauftrag: Konzept «Umsetzung Teilstrategie GEVER (UTG)» V0.7</h2>
+<div class="meta">Von: Sabine Muster (Amtsleitung) · An: Beat Beispiel · Heute 08:12</div>
+<p>Guten Morgen Beat</p>
+<p>Anbei erhältst du das Konzept «Umsetzung Teilstrategie GEVER (UTG)» in der Version 0.7. Bitte lege es korrekt in Acta Nova ab, prüfe es fachlich und vervollständige es bis am <b>30.10.2026</b>. Anschliessend soll die Ämterkonsultation gestartet werden.</p>
+<p>Besten Dank und freundliche Grüsse<br>Sabine Muster</p>
+<div class="att"><i>W</i> UTG Konzept.docx <span style="color:var(--mu)">· 412 KB</span></div></div>
+<aside class="pane" id="pane"><div class="pin">
+<div class="ph"><div class="cross"></div><div><b>ngGEVER</b><small>Schweizerische Eidgenossenschaft · Assistent</small></div></div>
+<div class="chat" id="chat"></div>
+<div class="ft"><a id="rst">Demo zurücksetzen</a></div>
+<div class="in"><input id="fi" placeholder="Frage stellen oder Auftrag beschreiben …"><button id="fs">Senden</button></div>
+</div></aside></div>
+<div id="word"><div class="wt">Word <small>Online · <span id="wfn">UTG Konzept.docx</span> · Acta Nova</small><span class="sp"></span><small>Beat Beispiel</small></div>
+<div class="wr"><span>Datei</span><span>Start</span><span>Einfügen</span><span>Layout</span><span>Überprüfen</span><span>Ansicht</span><button id="wng">◆ ngGEVER</button></div>
+<div class="wb"><div class="pg"><div class="pp"><div id="wdoc"><h1>Umsetzung Teilstrategie GEVER (UTG)</h1><div style="color:#666" id="wver">Konzept · Version 0.7 · Entwurf</div>
+<h3>1 Ausgangslage</h3><p>Die Teilstrategie GEVER legt die Grundlagen für eine einheitliche, effiziente und nachvollziehbare Geschäftsverwaltung fest. Das vorliegende Konzept beschreibt, wie die Teilstrategie im Amt umgesetzt wird.</p>
+<h3>2 Ziele</h3><p>Die Umsetzung soll die Arbeit in den Fachanwendungen vereinfachen, Medienbrüche reduzieren und die Nachvollziehbarkeit von Geschäftsvorfällen sicherstellen.</p>
+<h3>3 Vorgehen und Zuständigkeiten</h3><p id="wp3">Die Umsetzung erfolgt in Etappen. Die Verantwortlichkeiten der beteiligten Organisationseinheiten werden im Rahmen der Konsultation abgestimmt.</p></div><div id="wdemo"><button id="wman">Demo: Manuelle Änderung ausführen</button></div></div></div>
+<aside class="pane" id="wpane"><div class="pin"><div class="ph"><div class="cross"></div><div><b>ngGEVER</b><small>Schweizerische Eidgenossenschaft · Assistent</small></div></div><div class="chat" id="wchat"></div><div class="in"><input id="wi" placeholder="Frage stellen oder Auftrag beschreiben …"><button id="wsd">Senden</button></div></div></aside></div></div>
+<div id="beil" style="z-index:30"><div class="wt">Word <small>Online · Beilage 1 – Rollen und Zuständigkeiten.docx · SharePoint</small><span class="sp"></span><button id="bcl" style="border:1px solid #fff;background:none;color:#fff;font:inherit;padding:4px 12px;border-radius:4px;cursor:pointer">✕ Schliessen</button></div>
+<div class="wr"><span>Datei</span><span>Start</span><span>Einfügen</span><span>Überprüfen</span><span>Ansicht</span><span>◆ ngGEVER</span></div>
+<div class="wb"><div class="pg"><div class="pp"><h1>Beilage 1 – Rollen und Zuständigkeiten</h1><div style="color:#666">Zum Konzept «Umsetzung Teilstrategie GEVER (UTG)»</div>
+<table><tr><th>Rolle</th><th>Zuständigkeit</th></tr><tr><td>Amtsleitung</td><td>Strategische Steuerung und Freigabe</td></tr><tr><td>Projektleitung GEVER</td><td>Umsetzung und Koordination</td></tr><tr><td>Fachbereiche</td><td>Anwendung und Rückmeldung</td></tr><tr><td>Informatik</td><td>Betrieb und Integration</td></tr></table></div></div></div></div>
+<div id="an"><div class="ah"><div class="lg"><b>Acta Nova</b><small>GEVER BS 4.0</small></div><span>Neu ▾</span><span>Suchen ▾</span><span>Extras ▾</span><span>Hilfe ▾</span><div class="sr"><select><option>Dokumentensuche</option></select><input placeholder="Suchkriterium"><button>Suchen</button></div><div class="us">Beispiel Beat (@BK)<br><small>Bundeskanzlei · Normal</small></div><button id="anx">✕ Schliessen</button></div>
+<div class="mg"></div><div class="bc" id="bc">Aktuelle Informationen › Mandantenübergreifender AV</div>
+<div class="abd"><nav><div class="on" id="nAV"><span>Mandantenübergreifender AV</span><b>2</b></div><div><span>Federführungs-AV</span><b>0</b></div><div><span>Eigene Vorschreibungen</span><b>0</b></div><div><span>Stellvertretungs-AV</span><b>0</b></div><div><span>Wiedervorlage-AV</span><b>0</b></div><div><span>Zurückziehen-AV</span><b>0</b></div><hr><div><span>Aussonderungs-AV</span><b>0</b></div><div><span>Aktuelle Informationen</span></div><hr><div><span>Meine Kalendereinträge</span><b>0</b></div><div><span>Favoriten</span></div><div><span>Zuletzt gespeicherte Objekte</span></div><div><span>Suchanfragen</span></div><hr>
+<div><span>▾ BK - Bundeskanzlei</span><b>6</b></div><div class="l1"><span>▸ 0 - Führung und Querschnittsaufgaben</span></div><div class="l1"><span>▸ 1 - Support und Ressourcen</span></div><div class="l1"><span>▾ 2 - Führung und Unterstützung</span></div><div class="l2" id="nDos"><span>9-119/1 Umsetzung Teilstrategie GEVER (UTG)</span></div><div class="l1"><span>▸ 3 - Bundesrats- und Parlamentsgeschäfte</span></div><div class="l1"><span>▸ 4 - Besondere Aufgaben</span></div><div class="l1"><span>9 - Verschiedenes</span></div></nav>
+<main><div id="anAV"><h3>Mandantenübergreifender AV</h3><table><tr><th>Aktivität</th><th>Status</th><th>Frist</th><th>Dossier</th><th>Federführung</th></tr><tr class="sl"><td id="anT">Geschäft fachlich prüfen</td><td>In Bearbeitung</td><td id="anF">30.10.2026</td><td>9-119/1 Umsetzung Teilstrategie GEVER (UTG)</td><td>Beispiel Beat (@BK)</td></tr></table>
+<div class="dt"><h4>Prüfprozess</h4><dl><dt>Prozess</dt><dd>Dokumentprüf-Workflow</dd><dt>Dossier</dt><dd><a>9-119/1 Umsetzung Teilstrategie GEVER (UTG)</a></dd><dt>Zugeordnet an</dt><dd>Beispiel Beat (@BK)</dd><dt>Prüfgegenstand</dt><dd>UTG Konzept (V0.7)</dd></dl>
+<h4>Übergebene Dokumente (2)</h4><table><tr><th>Name</th><th>Typ</th><th>Status</th><th>Bemerkung/Betreff</th><th>Von</th><th>Datum</th></tr><tr><td><a>Prüfauftrag Konzept UTG.msg</a></td><td>E-Mail</td><td>In Bearbeitung</td><td>Prüfauftrag: Konzept «Umsetzung Teilstrategie GEVER (UTG)» V0.7</td><td>Sabine Muster</td><td>30.09.2026</td></tr><tr><td><a>UTG Konzept.docx</a></td><td>Word</td><td>In Bearbeitung</td><td>Version 0.7</td><td>Sabine Muster</td><td>30.09.2026</td></tr></table></div></div><div id="anDos" style="display:none"><h3>▷ Dossier «9-119/1 – Umsetzung Teilstrategie GEVER (UTG)» bearbeiten</h3>
+<div class="tabs"><span>Basisdaten</span><span class="on">Inhalte</span><span>Stornierte Inhalte</span><span>Geschäftsvorfälle</span><span>Unterschriften</span><span>Kalendereinträge</span><span>Stammdaten</span><span>Schlagworte</span><span>Bezüge</span><span>Prozess</span><span>Kommentare</span><span>Historie</span></div>
+<b>Inhalte</b><div class="flt">Textfilter <input style="flex:1"> <select><option>Alle Spalten</option></select> <a>Filtern</a> <a>Alle</a> Typfilter <select><option></option></select></div>
+<div class="dsp"><div><table><tr><th></th><th>Name</th><th>Inhalt</th><th>Status</th><th>Bemerkung/Betreff</th><th>Federführung</th></tr><tbody id="dosB"></tbody></table></div>
+<div class="nw"><div>⊕ Neu: Dokument(e)</div><div>Neu: Verschlüsseltes Dokument</div><div>Neu: Dokument aus Vorlage</div><div>Neu: Ausgang aus Vorlage</div><div>Neu: Eingang</div><div>Neu: Dossier</div><div>Neu: Geschäftsvorfall</div><div>Aktenkoffer auschecken</div><div>Dokumentcontainer herunterladen</div><div style="color:#aaa">In Zwischenablage legen</div><div style="color:#aaa">Aus Zwischenablage einfügen</div><div style="color:#aaa">Schutzniveau ändern</div></div></div></div></main></div></div>
+<div id="mc"><button id="mb">◀ Schritt zurück</button><button id="mr">⟲ Reset</button><button id="mg">Sprachbegleitung aktivieren</button><button id="md">Dokumentenübersicht aktivieren</button><button id="featureShortcut">Feature-Kandidaten</button></div><div id="gw"><div id="dv"></div><div id="gd"></div></div>
+<section id="outlookFeatures" hidden aria-label="ngGEVER Ausblick">
+<div class="fx-shell"><header class="fx-head"><span class="cross" aria-hidden="true"></span><b>ngGEVER</b><small>Ausblick</small></header><div id="featurePage"></div></div>
+</section>
+<script>
+const $=s=>document.querySelector(s),chat=$('#chat'),pane=$('#pane'),W=()=>$('#wchat');
+let filed=false,beilIn=false,pruefIn=false,GEN=0,FAST=false,REP=false,LOG=[],PT='Geschäft fachlich prüfen',PF='30.10.2026',edited=false,cmpDone=false;
+const wait=ms=>{const g=GEN;return new Promise((res,rej)=>setTimeout(()=>g===GEN?res():rej('x'),FAST?0:ms))};
+addEventListener('unhandledrejection',e=>e.preventDefault());
+const esc=t=>t.replace(/</g,'&lt;');
+const scroll=(b=chat)=>b.scrollTo({top:b.scrollHeight,behavior:FAST?'auto':'smooth'});
+function add(cls,html,b=chat){const d=document.createElement('div');d.className=cls;d.innerHTML=html;b.appendChild(d);scroll(b);return d}
+async function steps(list,b=chat){const d=add('bot','<ul class="steps"></ul>',b),ul=d.firstChild;
+ for(const t of list){const li=document.createElement('li');li.innerHTML='<span class="ic"></span><span>'+t+'</span>';ul.appendChild(li);scroll(b);await wait(900);li.className='d'}return d}
+const demo=t=>alert('Demo: '+t),DM='Dieser Schritt folgt im nächsten Ausbau des Demonstrators.';
+const ACT={};
+async function go(n,...a){if(!REP)LOG.push([n,...a]);upd0();return ACT[n](...a)}
+const upd0=()=>{$('#mb').disabled=!LOG.length};
+function hardReset(){GEN++;chat.innerHTML='';W().innerHTML='';pane.classList.remove('open');$('#wpane').classList.remove('open');
+ $('#outlookFeatures').hidden=true;
+ ['#word','#beil','#an'].forEach(x=>$(x).style.display='none');$('#wdoc').innerHTML=ppInit;$('#wfn').textContent='UTG Konzept.docx';
+ $('#wdemo').style.display='none';$('#wman').disabled=false;edited=false;filed=beilIn=pruefIn=false;cmpDone=false;PT='Geschäft fachlich prüfen';PF='30.10.2026';$('#ngb').classList.add('hint');G(0)}
+const ppInit=$('#wdoc').innerHTML;
+async function replay(list){REP=FAST=true;hardReset();try{for(const [n,...a] of list)await ACT[n](...a)}finally{REP=FAST=false}LOG=list.slice();upd0()}
+$('#mr').onclick=()=>{LOG=[];hardReset();upd0()};
+$('#mb').onclick=()=>{if(LOG.length)replay(LOG.slice(0,-1))};upd0();
+// ---------- Outlook
+function welcome(){add('bot','<p style="margin:0">Guten Morgen Beat. Ich habe die geöffnete E-Mail «Prüfauftrag: Konzept UTG V0.7» erkannt. Wie kann ich helfen?</p><div class="chips"><button class="chip" id="gz">Geschäfts-Zuordnung<small>E-Mail einem Geschäft bzw. Dossier in Acta Nova zuordnen</small></button></div>');
+ $('#gz').onclick=()=>go('gz')}
+ACT.ngb=()=>{$('#ngb').classList.remove('hint');pane.classList.toggle('open');if(!chat.children.length){welcome();G(1)}};
+ACT.gz=async()=>{const g=$('#gz');if(g.disabled)return;g.disabled=true;G(2);
+ add('me','Geschäfts-Zuordnung');
+ await steps(['E-Mail und Anhang werden gelesen','Prüfgegenstand, Frist und erwartetes Ergebnis werden aufbereitet','Passende Dossiers in Acta Nova werden gesucht (nur berechtigte Treffer)']);
+ add('bot',`<div class="card"><h4>Erkannter Auftrag</h4><div class="b"><dl class="kv" style="margin:0"><dt>Prüfgegenstand</dt><dd>Konzept «Umsetzung Teilstrategie GEVER (UTG)», V0.7 (.docx)</dd><dt>Auftraggeberin</dt><dd>Sabine Muster, Amtsleitung</dd><dt>Frist</dt><dd>30.10.2026</dd><dt>Erwartet</dt><dd>Ablegen, fachlich prüfen und vervollständigen, danach Ämterkonsultation starten</dd></dl></div></div>
+ <div class="card rec"><h4>Dossier-Empfehlung <span class="tag">1 Treffer</span></h4><div class="b"><b>Umsetzung Teilstrategie GEVER (UTG)</b>
+ <dl class="kv" style="margin:6px 0 0"><dt>Dossier-Nr.</dt><dd>9-119/1</dd><dt>Ordnungssystem</dt><dd>2 – Führung und Unterstützung</dd><dt>Federführung</dt><dd>Beat Beispiel</dd><dt>Status</dt><dd>In Bearbeitung</dd></dl>
+ <ul class="why"><li>Thema deckt sich mit dem Konzepttitel</li><li>Zuständigkeit: Sie sind federführend</li><li>Dossier ist offen und passt zur Ordnungssystemstruktur</li></ul>
+ <div style="margin-top:12px;font-size:13px"><b>Diese Dokumente würden abgelegt</b>
+ <div class="ri"><span>✉</span><div><b>Prüfauftrag Konzept UTG.msg</b><small>E-Mail · Von: Sabine Muster · 30.09.2026, 08:12</small></div></div>
+ <div class="ri"><span>W</span><div><b>UTG Konzept.docx</b><small>Anhang der E-Mail · Version 0.7 · Von: Sabine Muster · 30.09.2026, 08:12 · 412 KB</small></div></div></div>
+ <div class="btns"><button class="btn" id="ok">Ablage bestätigen</button><button class="btn s" onclick="demo('Absprung in das Acta Nova Dossier')">In Acta Nova ansehen</button></div></div></div>
+ <p style="margin:8px 0 0;font-size:12px;color:var(--mu)">Mail und Anhang werden erst nach Ihrer Bestätigung abgelegt.</p>`);
+ $('#ok').onclick=()=>go('ok');G(3)};
+ACT.ok=async()=>{const b=$('#ok');if(b.disabled)return;b.disabled=true;G(4);
+ add('me','Ablage bestätigen');
+ await steps(['E-Mail wird als MSG-Datei im Dossier 9-119/1 abgelegt','Anhang «UTG Konzept» (V0.7) wird als Word-Dokument abgelegt','Ablage wird von Acta Nova bestätigt']);
+ filed=true;add('bot',`<div class="card okc"><h4>✓ Ablage erfolgreich</h4><div class="b"><p style="margin:0 0 8px">Die Unterlagen liegen im Dossier <a class="dl" onclick="go('dos')"><b>9-119/1 – Umsetzung Teilstrategie GEVER (UTG)</b></a>. Dieses Dossier bleibt Ihr Auftragsdossier.</p>
+ <dl class="kv" style="margin:0"><dt>E-Mail</dt><dd><a href="#" onclick="return false">Prüfauftrag Konzept UTG.msg</a></dd><dt>Konzept</dt><dd><a href="#" onclick="return false">UTG Konzept.docx</a></dd><dt>Zeitpunkt</dt><dd>${new Date().toLocaleString('de-CH',{dateStyle:'short',timeStyle:'short'})}</dd></dl></div></div>`);
+ await wait(900);
+ add('bot',`<p style="margin:0">Die E-Mail enthält auch den Auftrag, das Konzept zu prüfen. Soll ich dazu einen Prüfprozess mit den relevanten Angaben anlegen und starten?</p>
+ <div class="card rec"><h4>Vorschlag: Prüfauftrag Geschäftsvorfall</h4><div class="b"><dl class="kv" style="margin:0;align-items:center"><dt>Aktivität</dt><dd><input class="ei" id="pt" value="Geschäft fachlich prüfen"></dd><dt>Frist</dt><dd><input class="ei" id="pf" value="30.10.2026"></dd><dt>Zugeordnet an</dt><dd>Beat Beispiel</dd><dt>Applikation</dt><dd>Acta Nova</dd><dt>Prozess</dt><dd>Dokumentprüf-Workflow am Dossier 9-119/1</dd><dt>Prüfgegenstand</dt><dd>UTG Konzept (V0.7)</dd></dl>
+ <p style="margin:8px 0 0;font-size:12px;color:var(--mu)">Umfasst Prüfung und Vervollständigung der Unterlagen, nicht den Start der Ämterkonsultation.</p>
+ <div class="btns"><button class="btn" id="pk">Prüfauftrag anlegen und starten</button></div></div></div>`);
+ $('#pk').onclick=()=>go('pk',$('#pt').value,$('#pf').value);G(5)};
+ACT.pk=async(t,f)=>{const b=$('#pk');if(b.disabled)return;b.disabled=true;G(6);$('#pt').value=t;$('#pf').value=f;$('#pt').disabled=$('#pf').disabled=true;
+ t=t.trim()||'Geschäft fachlich prüfen';f=f.trim()||'30.10.2026';PT=t;PF=f;
+ add('me','Prüfauftrag anlegen und starten');
+ await steps(['Prüfauftrag wird in Acta Nova angelegt','Dokumentprüf-Workflow wird gestartet','Auftrag wird im persönlichen Arbeitsvorrat angezeigt']);
+ pruefIn=true;add('bot',`<div class="card okc"><h4>✓ Prüfauftrag angelegt</h4><div class="b"><dl class="kv" style="margin:0"><dt>Aktivität</dt><dd>${esc(t)}</dd><dt>Frist</dt><dd>${esc(f)}</dd><dt>Dossier</dt><dd>9-119/1</dd><dt>Workflow</dt><dd><a class="dl" onclick="go('an')">Prüfauftrag in Acta Nova öffnen</a></dd></dl></div></div>`);
+ await wait(700);
+ add('bot',`<p style="margin:8px 0 0">Sie können jetzt mit dem in Acta Nova abgelegten Konzept weiterarbeiten. Es öffnet sich in Word.</p><div class="card"><div class="b"><a class="dl" id="wl">▸ UTG Konzept.docx in Word öffnen</a><div style="font-size:12px;color:var(--mu)">Ablage: Acta Nova, Dossier 9-119/1</div></div></div>`);
+ $('#wl').onclick=()=>go('wl');G(7)};
+function anView(v){$('#nAV b').textContent=pruefIn?'2':'1';$('#anAV').style.display=v==='av'?'block':'none';$('#anDos').style.display=v==='dos'?'block':'none';$('#nAV').classList.toggle('on',v==='av');$('#nDos').classList.toggle('on',v==='dos');
+ $('#bc').textContent=v==='av'?'Aktuelle Informationen › Mandantenübergreifender AV':'Aktuelle Informationen › 9-119/1 Umsetzung Teilstrategie GEVER (UTG)';$('#an').style.display='flex'}
+ACT.an=()=>{Gt(8);$('#anT').textContent=PT;$('#anF').textContent=PF;anView('av')};
+ACT.dos=()=>{Gt(23);const r=(i,n,b)=>`<tr><td>☐</td><td><a>${i} ${n}</a></td><td>▤</td><td>In Bearbeitung</td><td>${b}</td><td>Beispiel Beat (@BK)</td></tr>`;
+ $('#dosB').innerHTML=r('✉','Prüfauftrag Konzept UTG.msg','Prüfauftrag: Konzept «Umsetzung Teilstrategie GEVER (UTG)» V0.7')+r('W','UTG Konzept.docx',beilIn&&edited?'Version 0.8':'Version 0.7')+(beilIn?r('W','Beilage 1 – Rollen und Zuständigkeiten.docx','Beilage zum Konzept'):'');
+ anView('dos')};
+ACT.anx=()=>{$('#an').style.display='none';Gback()};$('#anx').onclick=()=>go('anx');
+ACT.wl=()=>{$('#word').style.display='flex';G(9)};
+ACT.ft=(w,v)=>{const c=w==='o'?chat:W();add('me',esc(v),c);add('bot',w==='o'?'Im Demonstrator ist hier der vorgeschlagene Service «Geschäfts-Zuordnung» vorgesehen.':DM,c)};
+$('#fs').onclick=()=>{const v=$('#fi').value.trim();if(!v)return;$('#fi').value='';go('ft','o',v)};
+$('#fi').addEventListener('keydown',e=>{if(e.key==='Enter')$('#fs').click()});
+$('#ngb').onclick=()=>go('ngb');
+// ---------- Word
+function wwelcome(){add('bot','<p style="margin:0">Guten Tag Beat. Du hast das Konzept «UTG Konzept» (V0.7) aus Acta Nova geöffnet. Es gehört zum Prüfauftrag «Geschäft fachlich prüfen» im Dossier 9-119/1 (Frist 30.10.2026). Du möchtest das Dokument wohl fachlich prüfen. Soll ich dazu nach relevanten Informationen im Kontext dieses Geschäfts suchen?</p><div class="chips"><button class="chip" id="ws1">Suche nach relevanten Informationen<small>In Acta Nova und SharePoint, im Rahmen deiner Berechtigungen</small></button></div>',W());
+ $('#ws1').onclick=()=>go('ws1')}
+ACT.wng=()=>{$('#wpane').classList.toggle('open');if(!W().children.length){wwelcome();G(10)}};$('#wng').onclick=()=>go('wng');
+ACT.ws1=async()=>{const w=W(),b=$('#ws1');if(b.disabled)return;b.disabled=true;G(11);
+ add('me','Suche nach relevanten Informationen',w);
+ await steps(['<span class="ag">Such-Agent</span>Suchanfrage wird aus dem Geschäftskontext formuliert','<span class="ag">Such-Agent</span>Suche in Acta Nova (SoR) läuft','<span class="ag">Such-Agent</span>Suche in SharePoint (SoW) läuft','<span class="ag">ReRanking</span>Treffer werden nach Relevanz zur Fragestellung sortiert','<span class="ag">Kontext</span>Quelle, Version und Status werden ergänzt'],w);
+ add('bot',`<div class="card"><h4>Ergebnisse im Kontext dieses Geschäfts <span class="tag">3 Treffer</span></h4><div class="b" style="padding-top:2px">
+ <label class="ri"><input type="checkbox" class="sel"><div><b>UTG Konzept.docx</b><small><span class="src">SharePoint</span>Version 0.5</small><small>Letzte Änderung 12.08.2026 · Geändert von Lea Muster</small></div></label>
+ <label class="ri"><input type="checkbox" class="sel"><div><b>UTG Konzept.docx</b><small><span class="src">Acta Nova</span>Version 0.7 · In Bearbeitung · Dossier 9-119/1</small><small>Letzte Änderung 29.09.2026 · Geändert von Sabine Muster</small><small>Dieses Dokument ist gerade in Word geöffnet.</small></div></label>
+ <label class="ri"><input type="checkbox" class="sel"><div><b>Prüfauftrag Konzept UTG.msg</b><small><span class="src">Acta Nova</span>E-Mail · Dossier 9-119/1</small><small>Von: Sabine Muster · 30.09.2026, 08:12</small></div></label></div></div>
+ <p style="margin:8px 0 0;font-size:12px;color:var(--mu)">Ein höherer Rang bedeutet keine höhere fachliche Verbindlichkeit.</p>`,w);
+ await wait(600);
+ add('bot',`<p style="margin:8px 0 0">Wie möchtest du weitermachen?</p><div class="btns"><button class="btn" id="cmp" disabled>Ausgewählte vergleichen</button><button class="btn s" id="deep" disabled>Ein Dokument vertiefen</button></div><p style="margin:8px 0 0;font-size:12px;color:var(--mu)">Wähle oben zwei oder mehr Dokumente für einen Vergleich oder eines für die vertiefte Recherche. Du kannst auch unten eine eigene Aufgabe beschreiben.</p>`,w);
+ w.querySelectorAll('.sel').forEach((c,i)=>c.onchange=()=>go('sel',i,c.checked));
+ $('#cmp').onclick=()=>go('cmp');$('#deep').onclick=()=>go('deep');G(12)};
+ACT.sel=(i,c)=>{const w=W();w.querySelectorAll('.sel')[i].checked=c;const n=w.querySelectorAll('.sel:checked').length;$('#cmp').disabled=n<2;$('#deep').disabled=n!==1};
+ACT.deep=()=>{add('me','Dokument vertiefen',W());add('bot',DM,W())};
+ACT.cmp=async()=>{const w=W(),c=[...w.querySelectorAll('.sel')].map(x=>x.checked);
+ if(!(c[0]&&c[1])){add('me','Ausgewählte Dokumente vergleichen',w);add('bot','Für den Mockup ist der Vergleich der beiden Konzeptfassungen V0.5 und V0.7 vorgesehen.',w);return}
+ if(cmpDone)return;cmpDone=true;G(13);
+ add('me','Ausgewählte Dokumente vergleichen',w);
+ await steps(['<span class="ag">SoI</span>Konzept V0.5 (SharePoint) und V0.7 (Acta Nova) werden geladen','<span class="ag">KI-Analyse</span>Inhalt und Struktur beider Fassungen werden verglichen','<span class="ag">KI-Analyse</span>Abweichungen und Verweise werden bewertet'],w);
+ add('bot',`<div class="card"><h4>Vergleichsergebnis</h4><div class="b" style="font-size:13px"><p style="margin:0 0 6px">Fachlich sind die beiden Konzeptfassungen gleich. Es gibt keine nennenswerten inhaltlichen Unstimmigkeiten.</p><p style="margin:0">Einziger Unterschied: V0.5 verweist auf «Siehe Beilage 1 – Rollen und Zuständigkeiten». In V0.7 fehlt dieser Verweis.</p></div></div>
+ <div class="card"><h4>Gefundene Beilage</h4><div class="b" style="padding-top:2px"><div class="ri"><span>W</span><div><b><a class="dl" id="bl1">Beilage 1 – Rollen und Zuständigkeiten.docx</a></b><small><span class="src">SharePoint</span>Word-Datei · bearbeitbar</small></div></div></div></div>`,w);
+ $('#bl1').onclick=()=>go('bl');await wait(700);
+ add('bot',`<div class="card rec"><h4>Empfehlung</h4><div class="b" style="font-size:13px"><p style="margin:0">Prüfe die Beilage über den Link. Ist sie weiterhin nötig, ergänze im Konzept den Verweis. Danach sollte die Beilage ins gleiche Dossier übernommen werden.</p>
+ <div style="margin-top:10px"><b>Übergabe-Vorschlag</b><dl class="kv" style="margin:6px 0 0"><dt>Dokument</dt><dd>Beilage 1 – Rollen und Zuständigkeiten.docx (SharePoint)</dd><dt>Ziel-Dossier</dt><dd><b>9-119/1 – Umsetzung Teilstrategie GEVER (UTG)</b></dd><dt>Ordnungssystem</dt><dd>2 – Führung und Unterstützung</dd><dt>Federführung</dt><dd>Beat Beispiel</dd><dt>Status</dt><dd>In Bearbeitung</dd></dl></div>
+ <p style="margin:8px 0 0;font-size:12px;color:var(--mu)">Mit der Bestätigung der Übernahme bestätigst du auch deine Prüfung und Bearbeitung.</p>
+ <div class="btns"><button class="btn" id="ub">Beilage ins Dossier übernehmen</button><button class="btn s" id="un">Beilage nicht relevant</button></div></div></div>`,w);
+ $('#wdemo').style.display='block';
+ $('#ub').onclick=()=>go('ub');$('#un').onclick=()=>go('un');G(14)};
+ACT.bl=()=>{$('#beil').style.display='flex';Gt(15)};ACT.bcl=()=>{$('#beil').style.display='none';Gback()};$('#bcl').onclick=()=>go('bcl');
+ACT.wman=()=>{if(edited)return;edited=true;G(16);$('#wman').disabled=true;
+ $('#wver').innerHTML='Konzept · <span style="background:#fff3b0">Version 0.8</span> · Entwurf';
+ $('#wp3').insertAdjacentHTML('afterend','<p style="background:#fff3b0">Siehe Beilage 1 – Rollen und Zuständigkeiten.</p>');
+ $('#wdoc').insertAdjacentHTML('beforeend','<h3>Beilagenverzeichnis</h3><p style="background:#fff3b0">Beilage 1 – Rollen und Zuständigkeiten</p>')};
+$('#wman').onclick=()=>go('wman');
+ACT.ub=async()=>{const w=W();$('#ub').disabled=$('#un').disabled=true;G(17);
+ add('me','Beilage ins Dossier übernehmen',w);
+ await steps(['Beilage wird aus SharePoint gelesen','Beilage wird als Word-Dokument im Dossier 9-119/1 abgelegt','Ablage wird von Acta Nova bestätigt'],w);
+ beilIn=true;add('bot',`<div class="card okc"><h4>✓ Übernahme erfolgreich</h4><div class="b"><p style="margin:0 0 8px">Die Beilage liegt jetzt im Dossier <b>9-119/1 – Umsetzung Teilstrategie GEVER (UTG)</b>.</p><dl class="kv" style="margin:0"><dt>Beilage</dt><dd><a class="dl" onclick="demo('Absprung auf die Beilage in Acta Nova')">Beilage 1 – Rollen und Zuständigkeiten.docx</a></dd>${edited?'<dt>Konzept</dt><dd><a class="dl" onclick="demo(\'Absprung auf das Konzept in Acta Nova\')">UTG Konzept.docx</a> (V0.8, Verweis auf Beilage 1 ergänzt)</dd>':''}<dt>E-Mail</dt><dd><a class="dl" onclick="demo('Absprung auf die E-Mail in Acta Nova')">Prüfauftrag Konzept UTG.msg</a></dd></dl></div></div>`,w);
+ await wait(700);abschluss(true)};
+ACT.un=()=>{$('#ub').disabled=$('#un').disabled=true;add('me','Die Beilage ist nicht relevant',W());abschluss(false)};
+function abschluss(b){const w=W();G(b?18:19);
+ const t=b?`Das Konzept ${edited?'«UTG Konzept» (V0.8) ist ergänzt und die':'ist geprüft und die'} Beilage «Beilage 1 – Rollen und Zuständigkeiten» im Dossier abgelegt. Ist die Prüfung fachlich erledigt und soll der Prüfauftrag abgeschlossen werden?`:'Die Beilage wird nicht ins Dossier übernommen. Ist die Prüfung fachlich erledigt und soll der Prüfauftrag abgeschlossen werden?';
+ add('bot',`<p style="margin:8px 0 0">${t}</p><div class="btns"><button class="btn" id="pa">Prüfauftrag abschliessen</button></div>`,w);
+ $('#pa').onclick=()=>go('pa')}
+ACT.pa=async()=>{const w=W();$('#pa').disabled=true;G(20);add('me','Prüfauftrag abschliessen',w);
+ await steps(['Arbeitsauftrag wird in Acta Nova auf erledigt gesetzt'],w);
+ add('bot',`<div class="card okc"><h4>✓ Prüfauftrag erledigt</h4><div class="b"><p style="margin:0 0 8px">Ämterkonsultation noch nicht gestartet.</p><dl class="kv" style="margin:0"><dt>Aktivität</dt><dd>${esc(PT)}</dd><dt>Frist</dt><dd>${esc(PF)}</dd><dt>Workflow</dt><dd><a class="dl" onclick="demo('Absprung auf den Prüfauftrag in Acta Nova')">Prüfauftrag in Acta Nova ansehen</a></dd></dl></div></div>`,w);
+ await wait(900);
+ add('bot',`<hr style="border:0;border-top:1px solid var(--ln);margin:6px 0 10px"><p style="margin:0">Zurück zur ursprünglichen E-Mail von Sabine Muster («Prüfauftrag: Konzept UTG V0.7»): Dort war vorgesehen, danach die Ämterkonsultation zu starten. Soll die Ämterkonsultation gestartet werden?</p><div class="btns"><button class="btn" id="ak1">Ämterkonsultation starten</button><button class="btn s" id="ak2">Jetzt nicht</button></div>`,w);
+ $('#ak1').onclick=()=>go('ak','Ämterkonsultation starten');$('#ak2').onclick=()=>go('ak','Jetzt nicht');G(21)};
+ACT.ak=x=>{$('#ak1').disabled=$('#ak2').disabled=true;add('me',x,W());showFeatureIntro(x)};
+$('#wsd').onclick=()=>{const v=$('#wi').value.trim();if(!v)return;$('#wi').value='';go('ft','w',v)};
+$('#wi').addEventListener('keydown',e=>{if(e.key==='Enter')$('#wsd').click()});
+$('#rst').onclick=()=>{LOG=[];hardReset();upd0()};
+
+const GT={
+0:'Du bist in Outlook Online und hast die Auftrags-Mail der Amtsleitung erhalten: Das Konzept (V0.7) soll in Acta Nova abgelegt, geprüft und vervollständigt werden, danach folgt die Ämterkonsultation. Erwartet wird, dass du über den Button «ngGEVER» in der Leiste die Task Pane öffnest.',
+1:'Die Task Pane hat die geöffnete Mail erkannt und schlägt den Service «Geschäfts-Zuordnung» vor. Erwartet wird, dass du diesen Service auswählst, statt einen Freitext zu schreiben.',
+2:'ngGEVER liest Mail und Anhang, bereitet Prüfgegenstand, Frist und erwartetes Ergebnis auf und sucht im Hintergrund passende Dossiers in Acta Nova. Du siehst nur kurze Zwischenschritte und musst nichts tun.',
+3:'Du siehst den erkannten Auftrag und eine begründete Dossier-Empfehlung, dazu die Dokumente, die abgelegt würden (Mail als MSG, Anhang als Word). Abgelegt wird erst nach deiner Bestätigung. Erwartet wird, dass du das Dossier prüfst und die Ablage bestätigst.',
+4:'Mail und Anhang werden im Hintergrund in Acta Nova abgelegt, ohne dass du Acta Nova öffnen musst. Du musst nichts tun.',
+5:'Die Ablage ist bestätigt, und das Dossier bleibt dein Auftragsdossier. Da die Mail auch eine Prüfung verlangt, schlägt ngGEVER einen Prüfauftrag mit Aktivität, Frist und Prozess vor. Erwartet wird, dass du die Angaben prüfst, bei Bedarf korrigierst und den Prüfauftrag anlegst.',
+6:'Der Prüfauftrag wird im Hintergrund in Acta Nova angelegt und der Dokumentprüf-Workflow gestartet. Du musst nichts tun.',
+7:'Der Prüfauftrag ist angelegt und liegt in deinem Arbeitsvorrat in Acta Nova. Über den Link könntest du ihn dort ansehen, nötig ist das aber nicht. Erwartet wird, dass du das abgelegte Konzept in Word öffnest.',
+8:'Du siehst Acta Nova nur zur Kontrolle: Im Aktivitätsvorrat liegt eine Aufgabe, der Prüfauftrag zum Dossier mit den beiden übergebenen Dokumenten. Erwartet wird, dass du Acta Nova schliesst und zu Outlook zurückkehrst.',
+9:'Das Konzept V0.7 ist aus Acta Nova in Word Online geöffnet, und du willst es nun prüfen. Erwartet wird, dass du die ngGEVER Task Pane in Word manuell aktivierst.',
+10:'Die Task Pane erkennt, dass du im Konzept des Prüfauftrags arbeitest, und schlägt die Suche nach relevanten Informationen vor. Für die lesende Suche ist keine weitere Bestätigung nötig. Erwartet wird, dass du die Suche startest.',
+11:'Im Hintergrund suchen der Such-Agent in Acta Nova und SharePoint, danach sortieren ReRanking und Kontext die Treffer. Du siehst nur kurze Zwischenschritte und musst nichts tun.',
+12:'Die Trefferliste zeigt Quelle, Version, letzte Änderung und Bearbeiter. Ein höherer Rang bedeutet keine höhere fachliche Verbindlichkeit. Erwartet wird, dass du die Konzepte V0.5 und V0.7 auswählst und den Vergleich startest; alternativ kannst du ein Dokument vertiefen oder eine eigene Aufgabe beschreiben.',
+13:'Die KI im SoI vergleicht im Hintergrund die beiden Konzeptfassungen. Du musst nichts tun.',
+14:'Fachlich sind die Konzepte gleich, nur V0.5 verweist auf eine Beilage 1, die als Word-Datei auf SharePoint gefunden wurde. ngGEVER empfiehlt, die Beilage zu prüfen und bei Relevanz im Konzept zu referenzieren. Erwartet wird, dass du die Beilage über den Link öffnest, im Konzept den Verweis ergänzt (Demo-Button unten im Word) und dann die Übernahme bestätigst oder die Beilage als nicht relevant verneinst.',
+15:'Du prüfst die Beilage in einem eigenen Word-Fenster, ohne Task Pane, und entscheidest selbst, ob sie für das Konzept weiterhin nötig ist. Erwartet wird, dass du die Beilage schliesst und ins Konzept zurückkehrst.',
+16:'Du hast im Konzept den Beilagenverweis ergänzt, das Beilagenverzeichnis aufgeführt und die Version auf V0.8 erhöht. Erwartet wird, dass du in der Task Pane die Übernahme der Beilage ins Dossier bestätigst, was zugleich deine Prüfung bestätigt.',
+17:'Die Beilage wird im Hintergrund als Kopie aus SharePoint ins Auftragsdossier in Acta Nova übernommen. Du musst nichts tun.',
+18:'Die Übernahme ist bestätigt, und die Beilage liegt mit Link im Dossier in Acta Nova. ngGEVER fragt, ob die Prüfung fachlich erledigt ist und der Prüfauftrag abgeschlossen werden soll. Den Abschluss bestimmst du; erwartet wird deine Bestätigung.',
+19:'Du hast die Beilage als nicht relevant verneint, sie wird nicht ins Dossier übernommen. ngGEVER fragt, ob die Prüfung fachlich erledigt ist und der Prüfauftrag abgeschlossen werden soll. Erwartet wird deine Bestätigung.',
+20:'Der Arbeitsauftrag wird im Hintergrund in Acta Nova auf erledigt gesetzt. Du musst nichts tun.',
+21:'Der Prüfauftrag ist erledigt. Dossier und Geschäft bleiben offen, die Ämterkonsultation ist noch nicht gestartet. Zurück zur ursprünglichen Mail fragt ngGEVER, ob die Ämterkonsultation gestartet werden soll. Erwartet wird deine Antwort; danach folgt der Ausblick auf mögliche Feature-Kandidaten.',
+23:'Du siehst das UTG Dossier in Acta Nova nur zur Kontrolle: Es enthält die bisher abgelegten Dokumente. Erwartet wird, dass du Acta Nova schliesst und zur Task Pane zurückkehrst.',
+22:'Der Fall endet mit der Frage nach dem nächsten Schritt: Die Ämterkonsultation wird weder gestartet noch versendet. Mit «Schritt zurück» oder «Reset» kannst du die Vorführung erneut durchgehen.'};
+let GK=0,BASE=0,GON=false;
+let DON=false;
+function render(){const g=$('#gd'),d=$('#dv'),r=document.documentElement.style;
+ g.style.display=GON?'block':'none';if(GON)g.textContent=GT[GK];
+ d.style.display=DON?'grid':'none';
+ if(DON){const A=!filed?'keine Inhalte':beilIn?'Auftragsmail, Konzept ('+(edited?'V0.8':'V0.7')+'), Beilage 1':'Auftragsmail, Konzept (V0.7)';
+  d.innerHTML='<div><b>Outlook</b>Mail mit Konzept (V0.7)</div><div><b>SharePoint</b>Konzept (V0.5), Beilage 1</div><div><b>Acta Nova</b>UTG Dossier: '+A+((filed&&!beilIn&&edited)?'<br>In Word in Bearbeitung: Konzept (V0.8)':'')+'</div>'}
+ r.setProperty('--gh',$('#gw').offsetHeight+'px')}
+function G(k){GK=BASE=k;render()}
+function Gt(k){GK=k;render()}
+function Gback(){GK=BASE;render()}
+$('#mg').onclick=()=>{GON=!GON;$('#mg').textContent='Sprachbegleitung '+(GON?'deaktivieren':'aktivieren');render()};
+$('#md').onclick=()=>{DON=!DON;$('#md').textContent='Dokumentenübersicht '+(DON?'deaktivieren':'aktivieren');render()};addEventListener('resize',render);render();
+
+// Kandidaten aus Feature-Kandidaten.md, Stand 12.10.2026; keine Priorisierung.
+const FEATURE_GROUPS=[{"title": "Eingang und Geschäftskontext", "items": [{"id": "FK-01", "title": "E-Mails dem richtigen Geschäft zuordnen", "core": "Aus Inhalt, Absender und Beilagen passende Geschäfte vorschlagen; die Zuordnung direkt in Outlook bestätigen."}, {"id": "FK-02", "title": "Aus einer E-Mail ein Geschäft vorbereiten", "core": "Auftrag, federführende Stelle, Frist und erste Unterlagen aus einer Nachricht übernehmen und eine Geschäftseröffnung vorbereiten."}, {"id": "FK-03", "title": "Geschäftsrelevante Kommunikation erkennen", "core": "In E-Mail-Verläufen und Teams-Unterhaltungen auf Aufträge, Zusagen oder Entscheide hinweisen, die zum Geschäft gehören."}, {"id": "FK-04", "title": "Beilagen dem passenden Dossier zuordnen", "core": "Eine eingehende Stellungnahme oder Vertragsfassung erkennen und das geeignete Dossier samt Dokumenttyp vorschlagen."}, {"id": "FK-05", "title": "Doppelte Geschäftseröffnungen verhindern", "core": "Vor einer Neueröffnung auf bereits laufende Geschäfte mit demselben Gegenstand hinweisen."}]}, {"title": "Ämterkonsultation und Zusammenarbeit", "items": [{"id": "FK-06", "title": "Eine Ämterkonsultation vollständig vorbereiten und kontrolliert auslösen", "core": "Adressaten, Frist, freigegebene Versandfassung, Beilagen und erforderliche Freigabe gemeinsam prüfen; nach Bestätigung auslösen und den tatsächlichen Versand sowie die Auftragsanlage nachvollziehbar bestätigen. Eine E-Mail ist ein möglicher Einstieg."}, {"id": "FK-07", "title": "Konsultationsrückmeldungen automatisch zusammenführen", "core": "Eingehende Antworten dem Konsultationsauftrag zuordnen und sichtbar machen, welche Stellen geantwortet haben."}, {"id": "FK-08", "title": "Strittige Punkte zwischen Stellungnahmen erkennen", "core": "Gegensätzliche Forderungen zu derselben Passage gegenüberstellen und auf die jeweiligen Quellen verweisen."}, {"id": "FK-09", "title": "Offene Beiträge rechtzeitig nachfassen", "core": "Fehlende Rückmeldungen erkennen und gezielte Erinnerungen mit Geschäftskontext und Frist vorbereiten."}, {"id": "FK-10", "title": "Stellungnahmen bis zur Bereinigung verfolgen", "core": "Jede Forderung mit ihrer Behandlung verbinden: übernommen, teilweise übernommen oder abgelehnt – jeweils mit Begründung."}, {"id": "FK-11", "title": "Die richtige Fachstelle für eine Mitwirkung finden", "core": "Aus Thema und bisherigen Geschäften geeignete Stellen und Ansprechpersonen für einen Fachbeitrag vorschlagen."}, {"id": "FK-40", "title": "Mitarbeitende zu einem gemeinsamen KI-Dialog über einen Geschäftseingang einladen", "core": "Zu einem spezifischen Geschäftseingang Mitarbeitende in denselben Chat-Dialog einladen; mehrere Personen können gleichzeitig im gemeinsamen Kontext mit der KI interagieren, Fragen stellen und Beiträge gemeinsam klären. Beiträge von Personen und KI bleiben unterscheidbar. Zugriff auf Dialog und Quellen richtet sich nach den jeweiligen Berechtigungen; die Einladung erweitert keine Quellenrechte. Fachliche Entscheide und daraus folgende Aktionen benötigen die zuständige verantwortliche Person."}]}, {"title": "Finden, verstehen und wiederverwenden", "items": [{"id": "FK-12", "title": "Die für den nächsten Arbeitsschritt massgebliche Fassung bestimmen", "core": "Fassungen in Acta Nova, SharePoint und weiteren Arbeitsräumen vergleichen und für Prüfung, Versand oder Nachweissicherung einordnen; aktuelle Bearbeitung, freigegebene Fassung und gesicherten Nachweis mit ihren Quellen unterscheiden. Die verantwortliche Person bestätigt die Auswahl."}, {"id": "FK-13", "title": "Zusammenhängende Dossiers entdecken", "core": "Inhaltlich verwandte Dossiers in Acta Nova finden und den Zusammenhang erklären, etwa über Rechtsgrundlage, Organisation oder Vorgängervorhaben."}, {"id": "FK-14", "title": "Verwandte Geschäfte und Abhängigkeiten erkennen", "core": "Frühere und laufende Geschäfte in Acta Nova und angebundenen Arbeitsumgebungen zum selben Gegenstand finden; mögliche Folgegeschäfte und Abhängigkeiten sichtbar machen."}, {"id": "FK-15", "title": "«Was ist seit meinem letzten Besuch passiert?»", "core": "Neue Beiträge, geänderte Dokumente, Entscheide und Fristen eines Geschäfts seit dem letzten Zugriff zusammenfassen."}, {"id": "FK-16", "title": "«Warum wurde damals so entschieden?»", "core": "Einen früheren Entscheid mit seinen Grundlagen, Stellungnahmen und dokumentierten Begründungen erschliessen."}, {"id": "FK-17", "title": "Bewährte Lösungen aus früheren Geschäften nutzen", "core": "Geeignete Vorgehensweisen und Textbausteine aus vergleichbaren Fällen vorschlagen; Herkunft und damaligen Kontext anzeigen."}, {"id": "FK-18", "title": "Die Auswirkung einer Änderung erkennen", "core": "Bei einer geänderten Grundlage zeigen, welche Geschäfte, Entwürfe oder anstehenden Entscheide überprüft werden sollten."}]}, {"title": "Informationsqualität und Ordnung", "items": [{"id": "FK-19", "title": "Verwaiste und überholte Inhalte aufspüren", "core": "In SharePoint und Acta Nova Inhalte ohne erkennbaren Geschäftskontext, verantwortliche Stelle oder aktuellen Zweck zur Prüfung vorlegen."}, {"id": "FK-20", "title": "Metadaten in Acta Nova vereinheitlichen", "core": "Fehlende oder widersprüchliche Angaben erkennen und einheitliche Titel, Dokumenttypen und weitere Metadaten vorschlagen."}, {"id": "FK-21", "title": "Dubletten und auseinanderlaufende Kopien erkennen", "core": "Identische und nahezu identische Dokumente finden; zeigen, wo Kopien inzwischen unterschiedliche Inhalte enthalten."}, {"id": "FK-22", "title": "Unterbrochene Verweise reparieren", "core": "Nicht mehr erreichbare Dokumentverknüpfungen erkennen und mögliche neue Zielorte vorschlagen."}, {"id": "FK-23", "title": "Die Entscheidungsreife eines Geschäfts prüfen", "core": "Vor einem Entscheid fehlende Unterlagen, ausstehende Beiträge und ungelöste Widersprüche mit Quellen anzeigen. Die verantwortliche Person beurteilt, ob die Grundlage ausreicht oder trotz dokumentierter Lücken entschieden werden kann."}, {"id": "FK-24", "title": "Widersprüchliche Angaben zwischen Systemen erkennen", "core": "Abweichende Fristen, Zuständigkeiten oder Statusangaben in Acta Nova und Arbeitsräumen gegenüberstellen und zur Klärung vorlegen."}, {"id": "FK-25", "title": "Unpassende Freigaben und Ablageorte erkennen", "core": "Auf Inhalte hinweisen, deren Schutzbedarf möglicherweise nicht zu den aktuellen Zugriffsrechten oder zum Arbeitsraum passt."}]}, {"title": "Verantwortung, Abschluss und Nachweis", "items": [{"id": "FK-26", "title": "Ein Geschäft sauber übergeben", "core": "Bei Stellvertretung oder Personalwechsel ein Übergabepaket mit offenen Aufgaben, Fristen, letzten Entscheiden und relevanten Unterlagen vorbereiten."}, {"id": "FK-27", "title": "Zusagen aus Besprechungen nachverfolgen", "core": "Aus Protokollen konkrete Zusagen und Aufgaben vorschlagen; nach Bestätigung mit Verantwortlichen und Geschäft verknüpfen."}, {"id": "FK-28", "title": "Ein Ergebnis mit seinem Entscheidkontext zur Sicherung übergeben", "core": "Die verwendete Fassung, Freigabe, relevante Beilagen und Begründung aus dem SoW für die Sicherung im zuständigen SoR zusammenstellen; nach der Übergabe anzeigen, welche Inhalte tatsächlich gesichert wurden."}, {"id": "FK-29", "title": "Prüfen, ob ein Geschäft abgeschlossen werden kann", "core": "Offene Beiträge, fehlende Nachweise und unerledigte Aufgaben anzeigen, bevor das Geschäft fachlich abgeschlossen wird."}, {"id": "FK-30", "title": "Eine konkrete Auskunftsfrage mit belegtem Geschäftsverlauf beantworten", "core": "Für Revision, Führung oder eine Auskunftsanfrage den relevanten Verlauf mit Quellen beantworten, etwa «Warum wurde die Konsultation mit dieser Fassung gestartet?»; Anlass, Freigabe, Unterlagen und Versand verbinden und fehlende Belege sichtbar halten."}]}, {"title": "Geschäftsführung und Steuerung im Arbeitsfluss", "items": [{"id": "FK-31", "title": "Einen Auftrag in einen bearbeitbaren Ablauf übersetzen", "core": "Aus einem mehrteiligen Auftrag einzelne Schritte, Verantwortliche, Fristen und Voraussetzungen vorschlagen; die verantwortliche Person prüft und bestätigt den Ablauf. Beispielsweise bleiben Ablegen, Prüfen, Vervollständigen und anschliessendes Konsultieren als zusammengehöriger Auftrag sichtbar."}, {"id": "FK-32", "title": "Den Geschäftskontext beim Wechsel der Arbeitsumgebung mitnehmen", "core": "Beim Wechsel etwa von Outlook zu Word Auftrag, Frist, Dossier und offene Schritte verfügbar halten; den erkannten Kontext anzeigen und durch die nutzende Person korrigieren lassen."}, {"id": "FK-33", "title": "Den nächsten Schritt mit seinen Voraussetzungen vorbereiten", "core": "Aus dem bestätigten Ablauf den nächsten Schritt vorschlagen und noch fehlende Voraussetzungen benennen, etwa Versandfassung und Adressaten vor einer Ämterkonsultation; passende Vorbereitung anbieten und Freigaben beachten."}, {"id": "FK-34", "title": "Ein Geschäft über alle beteiligten Stellen hinweg überblicken", "core": "Für die federführende Person Beiträge, anstehende Entscheide, Fristen und Blockaden rollen- und berechtigungsgerecht zusammenführen; Aufgabenstatus, Prozessstatus, Geschäftszustand und Nachweisstatus mit Quelle und Aktualität unterscheidbar halten. Die Übersicht erhält keine eigene fachliche Autorität."}, {"id": "FK-35", "title": "Kritische Geschäfte für die Führung sichtbar machen", "core": "Geschäfte mit konkretem Interventionsbedarf anzeigen, etwa ungeklärter Federführung, blockiertem Entscheid oder gefährdeter Frist; Anlass, Quelle, Aktualität und zuständige Person nennen. Kriterien und Eskalationsregeln sind fachlich festzulegen."}]}, {"title": "Entscheidkontext und verlässlicher Nachweis", "items": [{"id": "FK-36", "title": "Einen Entscheid mit Grundlage und Begründung festhalten", "core": "Fachliche Entscheide im Arbeitsfluss mit entscheidender Person, Zeitpunkt, verwendeten Fassungen und Begründung verbinden; etwa dokumentieren, weshalb eine Beilage als nicht relevant beurteilt wurde. Die verantwortliche Person bestätigt die Angaben."}, {"id": "FK-37", "title": "Eine erfolgte Übergabe überprüfen und unvollständige Übergaben klären", "core": "Erwartete Inhalte mit der tatsächlichen Rückmeldung des Zielsystems abgleichen; fehlende oder unbestätigte Teile gezielt zur Klärung und Nachführung vorlegen. Beispielsweise bleibt sichtbar, wenn die Beilage übernommen, das bearbeitete Konzept aber noch nicht gesichert wurde; bereits erfolgte Aktionen sollen nicht doppelt ausgelöst werden."}, {"id": "FK-38", "title": "Geschäftsrelevante Ergebnisse im richtigen Moment zur Sicherung vorschlagen", "core": "Bei einem fachlichen Anlass wie einer Freigabe vorschlagen, welche Fassung und zugehörigen Belege gesichert werden sollen; Anlass, Regel und Ziel erklären. Record-Relevanz, Verantwortlichkeit und erforderliche Bestätigung beachten, ohne jeden Entwurf automatisch zum Record zu machen."}, {"id": "FK-39", "title": "KI-Aussagen direkt an ihren Quellen prüfen", "core": "Aussagen aus Vergleichen und Zusammenfassungen mit den verwendeten Fundstellen und Fassungen verbinden; beispielsweise vom Hinweis auf einen fehlenden Beilagenverweis zu den betreffenden Textstellen springen. Nicht belegte Aussagen und Grenzen der Auswertung sichtbar machen."}]}];
+const fxEsc=t=>t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function showFeatureIntro(choice){
+ $('#outlookFeatures').hidden=false;
+ $('#featurePage').innerHTML=`<div class="fx-intro"><small>USER-STORY ABGESCHLOSSEN</small><h1 tabindex="-1">Übersicht möglicher Feature-Kandidaten</h1><p>Welche weiteren Aufgaben könnte ngGEVER im Arbeitsalltag unterstützen?</p><div class="fx-note">${choice==='Jetzt nicht'?'Die Ämterkonsultation wurde zurückgestellt.':'Der Start der Ämterkonsultation wurde gewählt; im Mockup wird die Konsultation nicht ausgeführt oder versendet.'}</div><button class="btn" data-fx="overview">Feature-Kandidaten ansehen →</button></div>`;
+ $('#outlookFeatures').scrollTop=0;G(24);$('#featurePage h1').focus({preventScroll:true});
+}
+function showFeatureOverview(group=0){
+ $('#outlookFeatures').hidden=false;
+ const g=FEATURE_GROUPS[group];
+ $('#featurePage').innerHTML=`<div class="fx-layout"><nav class="fx-nav" aria-label="Feature-Bereiche">${FEATURE_GROUPS.map((v,i)=>`<button data-fx="group" data-group="${i}" aria-pressed="${i===group}"><span>${fxEsc(v.title)}</span><b>${v.items.length} ›</b></button>`).join('')}</nav><main class="fx-content"><h1>40 Ideen für den Arbeitsalltag</h1><p>Bereich wählen und Kandidat anklicken, um Details zu sehen.</p><h2>${fxEsc(g.title)}</h2><div class="fx-grid">${g.items.map(v=>`<button class="fx-tile" data-fx="detail" data-id="${v.id}" aria-expanded="false" aria-controls="featureDetail"><b>${v.id}</b><span>${fxEsc(v.title)}</span><i aria-hidden="true">›</i></button>`).join('')}</div><section id="featureDetail" hidden aria-label="Feature-Details"></section></main></div><div class="fx-note">Ideen zur Prüfung. Priorität, Aufwand und Machbarkeit sind offen.</div><footer class="fx-footer"><button class="btn s" data-fx="intro">← Zurück zum Ausblick</button><button class="btn s" data-fx="exit">Zum Mockup</button></footer>`;
+ $('#outlookFeatures').scrollTop=0;G(25);
+}
+ACT.fxOverview=()=>showFeatureOverview();
+ACT.fxExit=()=>{$('#outlookFeatures').hidden=true;const last=[...LOG].reverse().find(v=>!v[0].startsWith('fx'));if(last)replay(LOG.filter(v=>!v[0].startsWith('fx')));else G(0)};
+ACT.fxGroup=i=>showFeatureOverview(i);
+ACT.fxIntro=()=>showFeatureIntro([...LOG].reverse().find(v=>v[0]==='ak')?.[1]);
+ACT.fxDetail=id=>{
+ const v=FEATURE_GROUPS.flatMap(g=>g.items).find(v=>v.id===id);if(!v)return;
+ document.querySelectorAll('.fx-tile').forEach(b=>b.setAttribute('aria-expanded',String(b.dataset.id===id)));
+ const detail=$('#featureDetail');detail.hidden=false;detail.innerHTML=`<button class="fx-close" data-fx="close" aria-label="Details schliessen">×</button><small>${v.id} · Details</small><h3 tabindex="-1">${fxEsc(v.title)}</h3><b>Funktionskern</b><p>${fxEsc(v.core)}</p><small>Feature-Kandidat – Idee zur Prüfung</small>`;detail.dataset.id=id;detail.querySelector('h3').focus({preventScroll:true});if(!FAST)detail.scrollIntoView({behavior:'smooth',block:'nearest'});
+};
+ACT.fxClose=()=>{const id=$('#featureDetail').dataset.id;$('#featureDetail').hidden=true;document.querySelectorAll('.fx-tile').forEach(b=>{b.setAttribute('aria-expanded','false');if(b.dataset.id===id)b.focus({preventScroll:true})})};
+$('#featurePage').addEventListener('click',e=>{const b=e.target.closest('[data-fx]');if(!b)return;const a=b.dataset.fx;if(a==='overview')go('fxOverview');if(a==='group')go('fxGroup',Number(b.dataset.group));if(a==='intro')go('fxIntro');if(a==='detail')go('fxDetail',b.dataset.id);if(a==='close')go('fxClose');if(a==='exit')go('fxExit')});
+$('#outlookFeatures').addEventListener('keydown',e=>{if(e.key==='Escape'&&$('#featureDetail')&&!$('#featureDetail').hidden)go('fxClose')});
+GT[24]='Die User-Story ist abgeschlossen. Die Ämterkonsultation wird im Mockup nicht ausgeführt. Über «Feature-Kandidaten ansehen» öffnest du den Ausblick auf weitere mögliche Funktionen.';
+GT[25]='Die Übersicht enthält 40 Ideen zur Prüfung. Wähle einen Bereich und klicke einen Kandidaten an, um seinen Funktionskern zu lesen. Die Reihenfolge ist keine Priorisierung.';
+$('#featureShortcut').onclick=()=>go('fxOverview');
+function openFeatureHash(){if(location.hash==='#features')showFeatureOverview()}
+addEventListener('hashchange',openFeatureHash);openFeatureHash();
+</script></body></html>
